@@ -212,3 +212,13 @@ rendering, everything but the idle wait 110.70 M -> 107.10 M master cycles
 over the 340 ticks (-3.3 %); `spritesUpdate` -9,000 a frame against +2,300
 in `oamPlaceWorld`. Its sorted copy of x, y, tile and attr is gone. Thread
 closed on both sides.
+
+## 2026-10-11: audio thread closed by the game
+
+With `379a108b` and its workaround removed: 31 samples of 31, no failed
+load, 7,585 bytes of sound memory free, first tick at frame 314, voices
+1392/1392 against its simulator, 15/15 tests. Upload measured there at
+about 670 master cycles a byte (FastROM; 2,270 before), three-frame ticks
+21 to 19 with the sound. Its NMI is the SDK handler alone, about 800
+master cycles. Still to come from it: the split of `soundTick` between its
+interpreter and our commands.
