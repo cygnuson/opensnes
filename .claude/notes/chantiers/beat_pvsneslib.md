@@ -857,3 +857,29 @@ path where it does nothing, or for a call rarely taken (its cases 2 and
 3). Needs the frame opened only where it is used, or values saved around
 the cold call: the next chantier in the emitter.
 
+
+## 2026-10-11: the game's cases 2 and 3 (a frame paid for nothing) — measured, not pursued
+
+The game reported a function that tests and returns paying its frame
+(822 master cycles a frame), and a leaf losing its direct page for one
+cold call (+1,800 a frame); it worked around both in its source.
+
+- **A leaf already pays nothing** on an early return (no frame at all).
+  The case is a function that calls. Opening the frame after the early
+  test is only possible when the entry region touches no frame slot — and
+  a function with parameters homes them first. Counted on the assembly
+  the compiler produces today: 14 of the 130 framed functions of the
+  examples reach an exit before using their frame (ten of them are
+  `main`), and 1 of the 16 framed functions of the game (its sound
+  initialisation, run once). Not worth an emitter change.
+- **Saving direct-page words around a cold call** instead of homing them
+  on the stack: `pei` + `plx` / `stx` is about 14 cycles a word a call,
+  against about 22 cycles of frame a function entry plus one a stack
+  access. With four words live across the call it wins only if the call
+  runs less than about four times in ten, and the compiler has no
+  frequency for a branch: under an even guess the gain is nil, and a call
+  that does run loses 25 cycles. It would need the source to say the call
+  is cold. Kept as an idea (a `COLD` mark on a function, in `types.h`)
+  for the day a measured case cannot be rearranged in the source.
+
+Said to the game the same day.
