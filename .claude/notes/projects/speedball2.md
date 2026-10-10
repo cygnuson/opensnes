@@ -222,3 +222,14 @@ about 670 master cycles a byte (FastROM; 2,270 before), three-frame ticks
 21 to 19 with the sound. Its NMI is the SDK handler alone, about 800
 master cycles. Still to come from it: the split of `soundTick` between its
 interpreter and our commands.
+
+## 2026-10-11: the 32-bit division, measured by the game
+
+`c1e04d00`: `tcc_udivmod32` + `div32_ucore` 4.46 M → 1.16 M over its 340
+ticks (about 650 cycles a `u32 / u16` instead of about 2,500). It had
+replaced the division by two tables (12 KB of ROM, an approximate pitch
+above period 4096) between our two messages and removed them: the exact
+division stays. Its load: 340 ticks in 706 frames for a target of 703,
+21 three-frame ticks. Heaviest over 340 ticks: `spritesUpdate` 16.7 M
+(its C), `oamPlaceWorld` 13.1 M (ours), `stepPlayers` 12.9 M, `soundTick`
+11.8 M, `movePlayers` 11.3 M. Nothing asked: it looks at its C first.
