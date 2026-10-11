@@ -273,3 +273,15 @@ on `farClear`, before any promise on X (stage 2 of the compiler plan, the
 one step that opens a new class of silent defects). For the clear itself it
 took `memset` on the FAR buffer at once: 1.17 M to 0.49 M cycles.
 Closed when `farClear` is under about 120 master cycles a word.
+
+## 2026-10-12 — the loop lot landed; `farClear` 291 → 231
+
+`0202ea6a` (a loop tests at its bottom, no reload of the index at the body's
+entry): on its stand-alone workload, built in our scratch space with both
+compilers, `farClear` 2.23 M → 1.77 M cycles (291 → 231 master cycles a
+word), `screenFar` 21.50 M → 21.31 M, checksum 0x49DB both times. Its
+`sample_mirror` ask closed the day before (1,068 bytes free in its plain
+band, 16 tests of 16). Still owed: the index kept in X (its target: about
+120 a word) — stage 2 of the compiler plan, after the rest of stage 1.
+The hunt on this lot found `(c ? 1L : 0L) % d` stopping the compiler
+(present before the lot; fixed in it).
