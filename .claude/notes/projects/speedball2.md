@@ -293,3 +293,21 @@ ticks (unchanged), ROM and model agreeing tick for tick on three scenarios;
 no function slower. One of its tests broke on a buffer overrun of its own
 (an OBJ block written with page indices), seen because far RAM moved —
 nothing of ours.
+
+## 2026-10-12 — what its match does with `oamPlaceWorld`, for the example
+
+Asked which of its uses `examples/sprites/world_sprites` (`3e8483ba`)
+should show: (1) `order` is the essential part — its twenty 32x32 players
+and robots are sorted by depth at every tick (an insertion sort on their
+depth, slot = 19 − i: the lowest on the screen in the first slot, in
+front); (2) eight batches, three of size 32 and five of 16 (ball above,
+ball below, objects, lamps, big ball), the size bits set once; (3)
+`visible[]` read to choose which frames to stream to VRAM, not to count
+(a sprite off screen costs no DMA); (4) a hidden batch is not placed at
+all — the call costs the same on hidden sprites (+8,000 master cycles a
+frame measured on 2026-10-10), hence a flag per batch. The example was
+reshaped the same day (`c0ea2da8`): six 32x32 walkers sorted by y with
+`order`, coins of 16x16 in a second batch, the README saying (3) and (4).
+Also that day: it arms no HDMA channel (the channel rule noted in its
+tooling for its fades), and it uses neither `textPrint` nor the metasprite
+draw.
