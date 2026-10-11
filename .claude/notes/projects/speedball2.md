@@ -244,3 +244,32 @@ check (`cc -fsyntax-only -Wwrite-strings`) does not work on a project: the
 host compiler stops on `snes.h`. Do not hand that command out again.
 Same day: rebuilt on `1c173f87` (text run in assembly, hex escape), 15
 tests of 15, load unchanged (it does not call `textPrint`).
+
+## 2026-10-11 — its plain RAM band at 556 bytes free; the index loop
+
+**RAM.** With its manager screen barely begun, the game had 556 bytes free
+below `$2000` and asked whether the 8 KB are a firm limit. Answered with a
+compile of the day: `FAR` applies to any object, a scalar included (`lda.w
+g` becomes `lda.l g`: one byte and one CPU cycle an access; `t[i].f` keeps
+the same index code). What stays below is what a plain `T *` points at.
+Its rule "anything over 64 bytes goes FAR" was its own, not ours. The free
+figure of that band is also the stack's room (it starts at `$1FFF`): asked
+to measure, it found 205 bytes at the deepest (`$1F32`, manager screen), so
+350 of margin, and keeps the 512 threshold. The 544 bytes at `$0300` are
+`oamMemory`; moving it needs a public header change — a lead, not done.
+`sample_mirror` (512 bytes of the audio module) went `FAR` the same day
+(`8734b1f9`).
+
+**Loops.** `for (k = 0; k < 1920; k++) t[k] = 0;` costs ten instructions a
+turn (291 master cycles a word, measured by the game on a stand-alone
+workload it wrote for us, `tools/workloads/farfill.c` in its tree, nothing
+of the game in it, offered for our bench). What the generated code shows on
+five loop shapes of ours: the index is reloaded at the top of the body
+although A still holds it from the compare (the A-cache is dropped at every
+block entry, single predecessor or not); a `jmp` back to the condition
+every turn; a `u8` index compared signed after an `and #$00FF`; and the
+index never lives in X. Told the game: the first two first, with a figure
+on `farClear`, before any promise on X (stage 2 of the compiler plan, the
+one step that opens a new class of silent defects). For the clear itself it
+took `memset` on the FAR buffer at once: 1.17 M to 0.49 M cycles.
+Closed when `farClear` is under about 120 master cycles a word.
