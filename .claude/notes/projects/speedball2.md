@@ -233,3 +233,14 @@ division stays. Its load: 340 ticks in 706 frames for a target of 703,
 21 three-frame ticks. Heaviest over 340 ticks: `spritesUpdate` 16.7 M
 (its C), `oamPlaceWorld` 13.1 M (ours), `stepPlayers` 12.9 M, `soundTick`
 11.8 M, `movePlayers` 11.3 M. Nothing asked: it looks at its C first.
+
+## 2026-10-11 — string literals become `const char[]`: shown before landing
+
+Shown to the game before the compiler change landed (a literal handed to a
+plain `char *` was read from the wrong bank in silence). Its answer: its
+only literals go to `const char *` parameters and it has no plain `char *`;
+it prefers the refusal to a silent guard. The host command we gave it to
+check (`cc -fsyntax-only -Wwrite-strings`) does not work on a project: the
+host compiler stops on `snes.h`. Do not hand that command out again.
+Same day: rebuilt on `1c173f87` (text run in assembly, hex escape), 15
+tests of 15, load unchanged (it does not call `textPrint`).
