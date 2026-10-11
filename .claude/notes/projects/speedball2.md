@@ -285,3 +285,11 @@ band, 16 tests of 16). Still owed: the index kept in X (its target: about
 120 a word) — stage 2 of the compiler plan, after the rest of stage 1.
 The hunt on this lot found `(c ? 1L : 0L) % d` stopping the compiler
 (present before the lot; fixed in it).
+
+The game's own measure of the lot, the same day: `farClear` 231 (291),
+checksum unchanged; `match.c` 90.41 M cycles over the 340 ticks of its play
+script (92.15 M, −1.9 %), 340 ticks in 703 frames (705), 19 three-frame
+ticks (unchanged), ROM and model agreeing tick for tick on three scenarios;
+no function slower. One of its tests broke on a buffer overrun of its own
+(an OBJ block written with page indices), seen because far RAM moved —
+nothing of ours.
