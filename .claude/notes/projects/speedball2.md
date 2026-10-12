@@ -345,3 +345,19 @@ instead of 30. Our 12 257 a glyph on `farfill.c` and its 10 700 agree
 (its font is sparser, its right tile NULL one time in eight). Thread
 closed by it; the loops thread (T3, `farClear` per word) is the only one
 open.
+
+## 2026-10-12 — the compiler's stage 2 (T2 + T3) measured on it before landing
+
+Given the worktree's `bin/` in a separate directory during the Class A
+validation (`exchanges.md`), the game rebuilt a copy of itself on a
+phantom SDK (every directory of `develop` linked, `bin/` ours): 22 tests
+of 22, fingerprints unchanged; match.c 90.38 → 90.41 M master cycles on
+its play script (+0.03 %, noise), the manager's path 39.33 → 39.25 M
+(`open` 1.421 → 1.371 M, −3.5 %). Twelve loops of `match.c` took the X
+rule, all in `matchInit` (run once a match); the hot loops of the match
+call something (`stepOther`, `oamPlaceWorld`, the helpers) or index byte
+arrays by a non-constant step, so the rule leaves them alone, as said.
+Its manager already clears with `memset` and draws with
+`tileBlitGlyph2bpp`. Its loops thread closes on `farfill.c` (231 → 150.5
+a word, ≈ 125 with the invariant `lda #0` hoisted), not on the match,
+which has no loop of that shape left on its hot path.
