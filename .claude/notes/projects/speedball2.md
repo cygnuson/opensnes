@@ -329,3 +329,19 @@ weigh on that screen: the C that composes a text layer at the pixel —
 and `textSlot` 22 % of the busy time; then `soundTick` 9.2 %, `FastNmi`
 8.5 %. The same subject as its loops thread, the only one open:
 `farfill.c` is its workload for the index kept in X.
+
+## 2026-10-12 — `tileBlitGlyph2bpp` in its manager screen
+
+The shape it asked for (one call per tile row, a far glyph pointer, OR
+only, a NULL right tile allowed) shipped as `885fa8f7` the same day. Its
+`textGlyph` rewritten over two calls, `LIB_MODULES += tile`, nothing else
+changed, a `make`: 21 tests of 21, captures of the manager at frames 600
+and 1150 identical to the byte; `textGlyph` on its manager path (710
+frames, 181 glyphs) 6.33 M → 1.15 M + 1.93 M in the routine, ≈ 35 000 →
+≈ 17 000 master cycles a glyph (10 700 in the routine, 6 400 in its own
+envelope: `textSlot` two to four times and the pointers); busy time of the
+path 42.49 M → 39.33 M (−7.4 %); the screen lights 26 frames after entry
+instead of 30. Our 12 257 a glyph on `farfill.c` and its 10 700 agree
+(its font is sparser, its right tile NULL one time in eight). Thread
+closed by it; the loops thread (T3, `farClear` per word) is the only one
+open.
