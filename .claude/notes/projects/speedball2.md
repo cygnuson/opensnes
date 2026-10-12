@@ -311,3 +311,14 @@ reshaped the same day (`c0ea2da8`): six 32x32 walkers sorted by y with
 Also that day: it arms no HDMA channel (the channel rule noted in its
 tooling for its fades), and it uses neither `textPrint` nor the metasprite
 draw.
+
+## 2026-10-12 — what the multiply and divide helpers weigh in it
+
+On `2391b0e9` (the helpers waiting 8 and 16 cycles instead of 14 to 22,
+`$4202` not rewritten between products that share an operand) the game
+rebuilt from scratch: 20 tests of 20, fingerprints unchanged; its match
+code 90.41 M → 90.38 M master cycles on its play script (three calls
+only), and on the manager's path (710 frames, 17 call sites) `tcc_mul16`
+and `tcc_div16` together are 0.81 M of 42 M busy cycles. So the helpers
+are 2 % of that path, which bounds what any further work on them can
+give it; the loop index in X (stage 2, T3) stays what it asks for.
