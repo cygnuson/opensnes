@@ -361,3 +361,11 @@ Its manager already clears with `memset` and draws with
 `tileBlitGlyph2bpp`. Its loops thread closes on `farfill.c` (231 → 150.5
 a word, ≈ 125 with the invariant `lda #0` hoisted), not on the match,
 which has no loop of that shape left on its hot path.
+Rebuilt from scratch on `303520f5` (the lot landed): 22 tests of 22,
+fingerprints unchanged, match.c 90.41 M, manager 39.25 M (`open`
+1.368 M) — the figures of the intermediate binary. The loops thread is
+closed on both sides: `farClear` 291 → 125.8 master cycles a word over the
+two lots (the loop rotation of 2026-10-11, the stage 2 of 2026-10-12),
+and a compiler that keeps the counter in X for every simple loop to come
+(its cut, its screens). The phantom SDK and the intermediate directory
+are gone on its side.
