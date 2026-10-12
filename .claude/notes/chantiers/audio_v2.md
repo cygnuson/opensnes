@@ -214,3 +214,50 @@ owner listening where audible).
 - **NMI reentrancy**: audio API is main-thread-only (like dma queue
   rules). Stated in the header.
 - **snesmod coexistence**: unchanged rule — one engine per ROM.
+
+## 2026-10-10: what the first game asked of the module
+
+It runs the original game's sequence interpreter over voices 0-3 and
+measured three things (`/tmp/speedball2_pour_opensnes_audio*.md`, copied
+in substance here).
+
+- **Sample upload: 2,270 master cycles a byte**, 3.8 s of black screen for
+  36 KB. One byte an exchange, the CPU side in compiled C, the driver's
+  loop about 60 SPC700 cycles a byte. Now three bytes an exchange (data on
+  $2141-$2143, the exchange's index on $2140, echoed by the driver),
+  LOAD_SIZE carrying the number of full exchanges and the size of a last
+  partial one; CPU side in `audio_stream.asm`. 650 master cycles a byte on
+  soundboard (1,766 before, SlowROM). Tightening the driver's count from
+  83 to 67 cycles an exchange gained 7 master cycles a byte only: what is
+  after the echo overlaps with the CPU preparing the next exchange. The
+  critical path is detect + three stores + echo on the driver, and detect
+  + three reads and four port writes on the CPU. The bytes are asserted
+  in ARAM by `testing/manifests/lib_audio_stream.toml` (a page crossing,
+  the last exchange, a two-byte tail, one past the end).
+- **A command: 4,800 master cycles**, nearly all of it waiting for the
+  ack. The ack is now awaited by the NEXT command (`cmd_post` /
+  `cmd_wait`); commands that read a result and the whole load stay
+  synchronous (`cmd_send`). And `audioPlaySampleOn` sends only what the
+  voice does not already hold (`VoiceMirror.sent`, `vol_lr`): the default
+  envelope was re-sent at every note.
+- **Sample area**: `$0B00-$C000` whether or not the game uses an echo.
+  It is `$0B00-$FFC0` until the first `audioSetEcho()`.
+
+Not done: a note in one command (39 bits for 30 an exchange: two commands
+and a new opcode). To look at if the game is still at its limit.
+
+## 2026-10-11: the end of a load, third version
+
+The game lost its 8th load, then all the others, on the evening the upload
+got faster. Cause: `load_done` showed the end mark right after the last
+echo (38 SPC700 cycles, about 800 master cycles); an NMI between the
+console's last index write and that echo, with a handler outlasting the
+window, and the console never sees the echo. The game's handler is about
+800 master cycles, hence a narrow hit (3 start phases in 22); a longer
+handler makes it common. Now: the driver holds the last echo until the
+console shows the mark ($FF, or $7F after index $FF), answers with the
+mark and holds it until the console shows 0, then shows 0. Guard:
+`r_audio_phase` in libtests (400 loads under an `nmiSet` callback — a
+load made before `consoleInit` runs under a handler too short to hit).
+The rule the three versions teach: in this protocol no value is ever
+shown "for a while"; each is held until the other side answers it.
