@@ -1069,3 +1069,17 @@ the same loop without them) counted the rule's saving on the *empty*
 loop as a cost of the calls (`pad` 9,865 → 10,512 while nothing had
 slowed); every loop of a row now calls `bench_nop()` in both variants,
 and the reference was re-measured for both SDKs.
+
+## Debts and ideas left on 2026-10-12 (not opened)
+
+- `audioUnloadFrom(id)`: unload every sample loaded since slot `id` in one
+  call (the allocator is a stack); the game relays two banks with 31
+  `audioUnloadSample()` in reverse order and did not ask, 31 calls fitting
+  in a frame. With it, a tutorial paragraph on relaying banks, from its
+  figures (`projects/speedball2.md`, 2026-10-12).
+- `mapLoad` copies `MAP_MAXMTILES` entries whatever the asset's size (the
+  tail is the ROM that follows); a copy sized by the asset.
+- T3 follow-ups: a loop whose body reads A as the counter at its top
+  (`txa` would be needed where the deleted `ldx` was: no line to put it
+  on when the body has no `ldx`); `!=` and signed loop tests (`bne`/`beq`
+  entries); stack-slot counters (`N,s`: no `ldx n,s` form).

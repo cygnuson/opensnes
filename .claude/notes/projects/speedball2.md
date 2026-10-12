@@ -369,3 +369,20 @@ two lots (the loop rotation of 2026-10-11, the stage 2 of 2026-10-12),
 and a compiler that keeps the counter in X for every simple loop to come
 (its cut, its screens). The phantom SDK and the intermediate directory
 are gone on its side.
+
+## 2026-10-12 — two sample banks relayed in ARAM, with the API as it is
+
+Its intro music (31 instruments, 183 KB of 8-bit on the Amiga) does not
+fit ARAM beside the match's 34 samples, so the game loads two banks in
+turn: at the title `audioInit()` then 31 × `audioLoadSample()` (slots 31
+to 61, 51.8 KB of BRR, ≈ 100 frames, `audioGetFreeMemory()` 10 825);
+before the menu 31 × `audioUnloadSample()` in the reverse order (the
+allocator is a stack, as `audio.h` says — "exactly what it needed to
+know"), then 34 × `audioLoadSample()` (0 to 33, 57.5 KB, ≈ 106 frames).
+Worked first time; its interpreter runs at 50 Hz for the music (five
+ticks for six frames) and 60 Hz in the match, checked tick by tick
+against its Amiga simulator (5 020 music ticks, 2 886 frames of match
+sounds). What would rub one day, not asked: unloading a whole bank is n
+calls; an `audioUnloadFrom(id)` (everything loaded since that slot,
+stack oblige) would be one. A piece for the docs: a real game relaying
+two banks.
