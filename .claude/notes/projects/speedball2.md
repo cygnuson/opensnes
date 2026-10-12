@@ -322,3 +322,10 @@ only), and on the manager's path (710 frames, 17 call sites) `tcc_mul16`
 and `tcc_div16` together are 0.81 M of 42 M busy cycles. So the helpers
 are 2 % of that path, which bounds what any further work on them can
 give it; the loop index in X (stage 2, T3) stays what it asks for.
+Its report (`/tmp/speedball2_pour_opensnes_muldiv.md`, luna `793473a`,
+ROM against its model 188/188 ticks, 15/15 league days) names what does
+weigh on that screen: the C that composes a text layer at the pixel —
+`textGlyph` (one 8x8 glyph, two planes, two tiles) 14.9 %, with `textBox`
+and `textSlot` 22 % of the busy time; then `soundTick` 9.2 %, `FastNmi`
+8.5 %. The same subject as its loops thread, the only one open:
+`farfill.c` is its workload for the index kept in X.
